@@ -93,20 +93,20 @@
     "404983bf-e80b-46aa-9840-15699ef1c6da": {
       "id": "404983bf-e80b-46aa-9840-15699ef1c6da",
       "position": [
-        0,
-        0,
-        0.3
+        -4.841218673616771e-32,
+        -0.3000000000000003,
+        1.3886386431533584
       ],
       "rotation": [
-        0,
-        0,
-        0,
-        1
+        0.7071067811865476,
+        -1.232595164407831e-32,
+        1.232595164407831e-32,
+        0.7071067811865475
       ],
       "scale": [
-        1,
-        1,
-        1
+        0.1,
+        0.1,
+        0.1
       ],
       "geometry": null,
       "material": null,
@@ -121,7 +121,7 @@
         "loop": true
       },
       "name": "corazon.glb",
-      "order": 2.65316451271073
+      "order": 5.414704845957937
     },
     "70e520c4-c17c-4af7-96d1-bd1586505c8f": {
       "id": "70e520c4-c17c-4af7-96d1-bd1586505c8f",
@@ -131,10 +131,10 @@
         0
       ],
       "rotation": [
-        0,
-        0,
-        0,
-        1
+        -0.7071067811865476,
+        1.232595164407831e-32,
+        -1.232595164407831e-32,
+        0.7071067811865475
       ],
       "scale": [
         1,
@@ -150,6 +150,186 @@
         "name": "Tarjeta Flux – Frente (90×50 mm)"
       },
       "order": 3.7928342849297327
+    },
+    "b7fb31e2-e65a-4cf6-a81b-cf287bc827b2": {
+      "id": "b7fb31e2-e65a-4cf6-a81b-cf287bc827b2",
+      "position": [
+        0,
+        -0.005276107897285609,
+        -0.34504303281240833
+      ],
+      "rotation": [
+        -0.7071068200664149,
+        0,
+        0,
+        0.707106742306678
+      ],
+      "scale": [
+        5.491388781198632,
+        5.652573814187269,
+        1.0000000532124995
+      ],
+      "geometry": {
+        "type": "plane",
+        "width": 1,
+        "height": 1
+      },
+      "material": {
+        "type": "basic",
+        "color": "#FFFFFF",
+        "textureSrc": {
+          "type": "asset",
+          "asset": "assets/Tiles141_2K-JPG_Color.jpg"
+        },
+        "normalMap": {
+          "type": "asset",
+          "asset": "assets/Tiles141_2K-JPG_NormalGL.jpg"
+        },
+        "roughnessMap": {
+          "type": "asset",
+          "asset": "assets/Tiles141_2K-JPG_Roughness.jpg"
+        },
+        "metalness": 0
+      },
+      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864",
+      "components": {},
+      "name": "Plano",
+      "order": 4.80994852469535
+    },
+    "7cdbdfd4-523e-432a-b2b7-0d850909b96b": {
+      "id": "7cdbdfd4-523e-432a-b2b7-0d850909b96b",
+      "position": [
+        0,
+        1.2909181601262607,
+        -2.7065115942630156
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        5.491388781198632,
+        5.65257381418727,
+        1.0000000532124997
+      ],
+      "geometry": {
+        "type": "plane",
+        "width": 1,
+        "height": 1
+      },
+      "material": {
+        "type": "basic",
+        "color": "#FFFFFF",
+        "textureSrc": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_diff_2k.jpg"
+        },
+        "normalMap": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_nor_gl_2k.jpg"
+        },
+        "roughnessMap": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_rough_2k.jpg"
+        },
+        "metalness": 0
+      },
+      "components": {},
+      "name": "Plano (1)",
+      "order": 6.714060141230286,
+      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864"
+    },
+    "a67138b0-94f2-4eff-9cac-a2f42fe82bad": {
+      "id": "a67138b0-94f2-4eff-9cac-a2f42fe82bad",
+      "position": [
+        -2.8129647408368488,
+        1.2909181601262607,
+        -0.249878972576683
+      ],
+      "rotation": [
+        0,
+        0.7016405818753104,
+        0,
+        0.7125310476503293
+      ],
+      "scale": [
+        5.491388781198632,
+        5.65257381418727,
+        1.0000000532124997
+      ],
+      "geometry": {
+        "type": "plane",
+        "width": 1,
+        "height": 1
+      },
+      "material": {
+        "type": "basic",
+        "color": "#FFFFFF",
+        "textureSrc": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_diff_2k.jpg"
+        },
+        "normalMap": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_nor_gl_2k.jpg"
+        },
+        "roughnessMap": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_rough_2k.jpg"
+        },
+        "metalness": 0
+      },
+      "components": {},
+      "name": "Plano (2)",
+      "order": 7.878758366612689,
+      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864"
+    },
+    "ad5a827d-bc07-4870-a506-3d2c6acef289": {
+      "id": "ad5a827d-bc07-4870-a506-3d2c6acef289",
+      "position": [
+        2.7172888173573844,
+        1.29091816012626,
+        -0.342561851063951
+      ],
+      "rotation": [
+        0,
+        -0.7071067811865475,
+        0,
+        0.7071067811865476
+      ],
+      "scale": [
+        5.491388781198631,
+        5.65257381418727,
+        1.0000000532124995
+      ],
+      "geometry": {
+        "type": "plane",
+        "width": 1,
+        "height": 1
+      },
+      "material": {
+        "type": "basic",
+        "color": "#FFFFFF",
+        "textureSrc": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_diff_2k.jpg"
+        },
+        "normalMap": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_nor_gl_2k.jpg"
+        },
+        "roughnessMap": {
+          "type": "asset",
+          "asset": "assets/concrete_wall_001_rough_2k.jpg"
+        },
+        "metalness": 0
+      },
+      "components": {},
+      "name": "Plano (3)",
+      "order": 9.09830985114372,
+      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864"
     }
   },
   "spaces": {
