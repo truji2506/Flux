@@ -28,46 +28,6 @@
       "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864",
       "order": 0.4038940050501252
     },
-    "729478ae-d067-4e0c-a753-66c2e9efb625": {
-      "components": {
-        "8fe14f4e-4311-4b03-807d-a34c9c11368d": {
-          "id": "8fe14f4e-4311-4b03-807d-a34c9c11368d",
-          "name": "example-component",
-          "parameters": {}
-        }
-      },
-      "geometry": {
-        "depth": 1,
-        "height": 1,
-        "type": "box",
-        "width": 1
-      },
-      "id": "729478ae-d067-4e0c-a753-66c2e9efb625",
-      "material": {
-        "color": "#7611b6",
-        "type": "basic",
-        "textureFiltering": "sharp"
-      },
-      "name": "Box",
-      "position": [
-        0,
-        0.5,
-        0
-      ],
-      "rotation": [
-        0,
-        0,
-        0,
-        1
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864",
-      "order": 1.4038940050501252
-    },
     "a608ddd9-9379-464d-966f-5d8d8674c83c": {
       "camera": {
         "type": "perspective",
@@ -129,6 +89,67 @@
       ],
       "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864",
       "order": 0.6644431107322474
+    },
+    "404983bf-e80b-46aa-9840-15699ef1c6da": {
+      "id": "404983bf-e80b-46aa-9840-15699ef1c6da",
+      "position": [
+        0,
+        0,
+        0.3
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "70e520c4-c17c-4af7-96d1-bd1586505c8f",
+      "components": {},
+      "gltfModel": {
+        "src": {
+          "type": "asset",
+          "asset": "assets/corazon.glb"
+        },
+        "animationClip": "*",
+        "loop": true
+      },
+      "name": "corazon.glb",
+      "order": 2.65316451271073
+    },
+    "70e520c4-c17c-4af7-96d1-bd1586505c8f": {
+      "id": "70e520c4-c17c-4af7-96d1-bd1586505c8f",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864",
+      "components": {},
+      "name": "Objetivo de la imagen",
+      "imageTarget": {
+        "name": "Tarjeta Flux – Frente (90×50 mm)"
+      },
+      "order": 3.7928342849297327
     }
   },
   "spaces": {
