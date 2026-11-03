@@ -330,6 +330,226 @@
       "name": "Plano (3)",
       "order": 9.09830985114372,
       "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864"
+    },
+    "ddc5aa00-1351-439c-999f-d47709f81379": {
+      "id": "ddc5aa00-1351-439c-999f-d47709f81379",
+      "position": [
+        -0.9,
+        1.6,
+        0.3
+      ],
+      "rotation": [
+        0.7071067811865476,
+        -1.232595164407831e-32,
+        1.232595164407831e-32,
+        0.7071067811865475
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "70e520c4-c17c-4af7-96d1-bd1586505c8f",
+      "components": {
+        "4f7988cc-cf6c-4dbd-a1a7-89197ea512fe": {
+          "id": "4f7988cc-cf6c-4dbd-a1a7-89197ea512fe",
+          "name": "open-url-site",
+          "parameters": {}
+        }
+      },
+      "ui": {
+        "type": "3d",
+        "width": 100,
+        "height": 36,
+        "background": "#ad50ff",
+        "borderRadius": 18,
+        "flexDirection": "row",
+        "backgroundOpacity": 1,
+        "padding": "10",
+        "gap": "6",
+        "alignItems": "center",
+        "justifyContent": "center"
+      },
+      "name": "Botón",
+      "order": 7.411116068972215
+    },
+    "a6676487-af6e-4440-8109-c54b5bf98416": {
+      "id": "a6676487-af6e-4440-8109-c54b5bf98416",
+      "position": [
+        -0.323,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "ddc5aa00-1351-439c-999f-d47709f81379",
+      "components": {},
+      "name": "Icono",
+      "ui": {
+        "width": 16,
+        "height": 16,
+        "image": {
+          "type": "url",
+          "url": "https://cdn.8thwall.com/web/assets/sprites/8w-icon-m8j35d7y.png"
+        },
+        "backgroundOpacity": 1
+      },
+      "order": 0.13519545247965603
+    },
+    "c7d044f1-8b96-4722-a5f4-e3ff991eb5aa": {
+      "id": "c7d044f1-8b96-4722-a5f4-e3ff991eb5aa",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "ddc5aa00-1351-439c-999f-d47709f81379",
+      "components": {},
+      "name": "Texto",
+      "ui": {
+        "width": 50,
+        "height": 14,
+        "text": "fluxapp.site",
+        "color": "#ffffff",
+        "fontSize": 16
+      },
+      "order": 1.3853154588344567
+    },
+    "4181e6f6-9032-4342-a766-99150f1f6eeb": {
+      "id": "4181e6f6-9032-4342-a766-99150f1f6eeb",
+      "position": [
+        0.9,
+        1.6,
+        0.3
+      ],
+      "rotation": [
+        0.7071067811865475,
+        0,
+        0,
+        0.7071067811865476
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "70e520c4-c17c-4af7-96d1-bd1586505c8f",
+      "components": {
+        "b6389113-1ed8-4665-8042-d44b02bd413a": {
+          "id": "b6389113-1ed8-4665-8042-d44b02bd413a",
+          "name": "open-url-instagram",
+          "parameters": {}
+        }
+      },
+      "ui": {
+        "type": "3d",
+        "width": 100,
+        "height": 36,
+        "background": "#ad50ff",
+        "borderRadius": 18,
+        "flexDirection": "row",
+        "backgroundOpacity": 1,
+        "padding": "10",
+        "gap": "6",
+        "alignItems": "center",
+        "justifyContent": "center"
+      },
+      "name": "Botón (1)",
+      "order": 8.551903079685514
+    },
+    "7f8fe28b-8204-4270-a5a5-ffb7b93db94b": {
+      "id": "7f8fe28b-8204-4270-a5a5-ffb7b93db94b",
+      "position": [
+        -0.323,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "4181e6f6-9032-4342-a766-99150f1f6eeb",
+      "components": {},
+      "name": "Icono (1)",
+      "ui": {
+        "width": 16,
+        "height": 16,
+        "image": {
+          "type": "url",
+          "url": "https://cdn.8thwall.com/web/assets/sprites/8w-icon-m8j35d7y.png"
+        },
+        "backgroundOpacity": 1
+      },
+      "order": 0.19535192745031615
+    },
+    "2904801d-ebf8-4690-bda1-bd7bf4072672": {
+      "id": "2904801d-ebf8-4690-bda1-bd7bf4072672",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "4181e6f6-9032-4342-a766-99150f1f6eeb",
+      "components": {},
+      "name": "Texto (1)",
+      "ui": {
+        "width": 50,
+        "height": 14,
+        "text": "@fluxwebapp",
+        "color": "#ffffff",
+        "fontSize": 16
+      },
+      "order": 1.1471266583369792
     }
   },
   "spaces": {
