@@ -96,7 +96,10 @@ ecs.registerComponent({
         // ---------- Estado de la detección de la tarjeta (diagnóstico) ----------
         let estado = 'Cargando tarjeta…'
         const textoPista = () => {
-          pista.textContent = estado + ' · Toca una pieza del corazón'
+          pista.textContent = estado
+          pista.style.whiteSpace = 'normal'
+          pista.style.maxWidth = '86vw'
+          pista.style.textAlign = 'center'
         }
         const ev = (ecs as any).events
         const gid = (world as any).events.globalId
@@ -114,6 +117,20 @@ ecs.registerComponent({
         oir(ev?.REALITY_IMAGE_FOUND, (e: any) => { estado = 'Tarjeta detectada ✓ ' + (e.data?.name || ''); textoPista() })
         oir(ev?.REALITY_IMAGE_LOST, () => { estado = 'Tarjeta perdida'; textoPista() })
         textoPista()
+
+        // Prueba directa: ¿existen en el sitio los archivos del objetivo de imagen?
+        const probar = (ruta: string, etiqueta: string) => {
+          fetch(ruta, {cache: 'no-store'})
+            .then((r) => { estado += ' | ' + etiqueta + ' ' + r.status; textoPista() })
+            .catch(() => { estado += ' | ' + etiqueta + ' error'; textoPista() })
+        }
+        probar('image-targets/tarjeta-flux-frente.json', 'json')
+        probar('image-targets/tarjeta-flux-frente_luminance.png', 'img')
+        setTimeout(() => {
+          const xr = (window as any).XR8
+          estado += ' | XR8 ' + (xr ? 'si' : 'no')
+          textoPista()
+        }, 1500)
 
         // ---------- Piezas ----------
         const buscarPiezas = () => {
