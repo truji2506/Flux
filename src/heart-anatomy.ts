@@ -94,7 +94,7 @@ ecs.registerComponent({
         document.body.appendChild(pista)
 
         // ---------- Estado de la detección de la tarjeta (diagnóstico) ----------
-        let estado = 'Cargando tarjeta…'
+        let estado = 'Apunta a la tarjeta Flux'
         const textoPista = () => {
           pista.textContent = estado
           pista.style.whiteSpace = 'normal'
@@ -110,27 +110,13 @@ ecs.registerComponent({
           escuchas.push([nombre, fn])
         }
         oir(ev?.REALITY_IMAGE_LOADING, (e: any) => {
-          estado = 'Cargando tarjeta (' + ((e.data?.imageTargets || []).map((t: any) => t.name).join(', ') || '?') + ')'
+          estado = 'Apunta a la tarjeta Flux'
           textoPista()
         })
         oir(ev?.REALITY_IMAGE_SCANNING, () => { estado = 'Apunta a la tarjeta'; textoPista() })
-        oir(ev?.REALITY_IMAGE_FOUND, (e: any) => { estado = 'Tarjeta detectada ✓ ' + (e.data?.name || ''); textoPista() })
-        oir(ev?.REALITY_IMAGE_LOST, () => { estado = 'Tarjeta perdida'; textoPista() })
+        oir(ev?.REALITY_IMAGE_FOUND, (e: any) => { estado = 'Toca una pieza del corazón'; textoPista() })
+        oir(ev?.REALITY_IMAGE_LOST, () => { estado = 'Apunta a la tarjeta Flux'; textoPista() })
         textoPista()
-
-        // Prueba directa: ¿existen en el sitio los archivos del objetivo de imagen?
-        const probar = (ruta: string, etiqueta: string) => {
-          fetch(ruta, {cache: 'no-store'})
-            .then((r) => { estado += ' | ' + etiqueta + ' ' + r.status; textoPista() })
-            .catch(() => { estado += ' | ' + etiqueta + ' error'; textoPista() })
-        }
-        probar('image-targets/tarjeta-flux-frente.json', 'json')
-        probar('image-targets/tarjeta-flux-frente_luminance.png', 'img')
-        setTimeout(() => {
-          const xr = (window as any).XR8
-          estado += ' | XR8 ' + (xr ? 'si' : 'no')
-          textoPista()
-        }, 1500)
 
         // ---------- Piezas ----------
         const buscarPiezas = () => {
