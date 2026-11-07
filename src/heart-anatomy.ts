@@ -93,6 +93,28 @@ ecs.registerComponent({
         ].join(';')
         document.body.appendChild(pista)
 
+        // ---------- Estado de la detección de la tarjeta (diagnóstico) ----------
+        let estado = 'Cargando tarjeta…'
+        const textoPista = () => {
+          pista.textContent = estado + ' · Toca una pieza del corazón'
+        }
+        const ev = (ecs as any).events
+        const gid = (world as any).events.globalId
+        const escuchas: Array<[string, (e: any) => void]> = []
+        const oir = (nombre: string, fn: (e: any) => void) => {
+          if (!nombre) return
+          ;(world as any).events.addListener(gid, nombre, fn)
+          escuchas.push([nombre, fn])
+        }
+        oir(ev?.REALITY_IMAGE_LOADING, (e: any) => {
+          estado = 'Cargando tarjeta (' + ((e.data?.imageTargets || []).map((t: any) => t.name).join(', ') || '?') + ')'
+          textoPista()
+        })
+        oir(ev?.REALITY_IMAGE_SCANNING, () => { estado = 'Apunta a la tarjeta'; textoPista() })
+        oir(ev?.REALITY_IMAGE_FOUND, (e: any) => { estado = 'Tarjeta detectada ✓ ' + (e.data?.name || ''); textoPista() })
+        oir(ev?.REALITY_IMAGE_LOST, () => { estado = 'Tarjeta perdida'; textoPista() })
+        textoPista()
+
         // ---------- Piezas ----------
         const buscarPiezas = () => {
           if (piezas.size > 0) return
@@ -163,6 +185,7 @@ ecs.registerComponent({
           lienzo.removeEventListener('pointerup', alSubir)
           panel.remove()
           pista.remove()
+          escuchas.forEach(([n, f]) => (world as any).events.removeListener(gid, n, f))
         }
       })
       .onExit(() => {
