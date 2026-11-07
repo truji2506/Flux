@@ -49,6 +49,28 @@ const UMBRAL_CLIC = 8  // píxeles: más que esto es un arrastre, no un toque
 
 const raycaster = new THREE.Raycaster()
 const puntero = new THREE.Vector2()
+const _centro = new THREE.Vector3()
+const _caja = new THREE.Box3()
+// Radio, en píxeles, para aceptar un toque que cae cerca de algo sin acertarlo
+const TOLERANCIA_TOQUE = 40
+
+// Un objeto solo cuenta si se ve: el Raycaster de Three ignora .visible, y sin
+// esto se podían tocar piezas con la tarjeta fuera de cámara.
+const esVisible = (obj: any) => {
+  for (let o = obj; o; o = o.parent) if (!o.visible) return false
+  return true
+}
+
+// Abre un enlace una sola vez aunque lleguen dos eventos del mismo toque
+let _ultimoEnlace = 0
+const abrirEnlace = (url: string) => {
+  const ahora = Date.now()
+  if (ahora - _ultimoEnlace < 800) return
+  _ultimoEnlace = ahora
+  const w = window.open(url, '_blank')
+  if (!w) window.location.href = url
+}
+;(window as any).__fluxAbrirEnlace = abrirEnlace
 
 ecs.registerComponent({
   name: 'heart-anatomy',
@@ -126,6 +148,9 @@ ecs.registerComponent({
             // Cada pieza con su propio material: si se comparte, resaltar una
             // encendería varias a la vez.
             obj.material = obj.material.clone()
+            // Quieto, como en el visor de anatomía: el toque se calcula sobre la
+            // forma en reposo y con el latido no coincidía con lo que se ve.
+            if (obj.morphTargetInfluences) obj.morphTargetInfluences.fill(0)
             piezas.set(obj.name, obj)
             emisivoBase.set(obj.name, obj.material.emissive ? obj.material.emissive.getHex() : 0)
           })
@@ -154,17 +179,57 @@ ecs.registerComponent({
           }
         }
 
-        const piezaBajoElPuntero = (e: PointerEvent): string => {
-          buscarPiezas()
-          if (piezas.size === 0) return ''
+        // Distancia en pantalla (px) entre el toque y el centro de un objeto
+        const distanciaEnPantalla = (obj: any, e: PointerEvent, caja: DOMRect) => {
+          _caja.setFromObject(obj).getCenter(_centro).project(activeCamera)
+          if (_centro.z > 1) return Infinity
+          const x = (_centro.x * 0.5 + 0.5) * caja.width + caja.left
+          const y = (-_centro.y * 0.5 + 0.5) * caja.height + caja.top
+          return Math.hypot(e.clientX - x, e.clientY - y)
+        }
+
+        const prepararRayo = (e: PointerEvent) => {
           const caja = lienzo.getBoundingClientRect()
           puntero.x = ((e.clientX - caja.left) / caja.width) * 2 - 1
           puntero.y = -((e.clientY - caja.top) / caja.height) * 2 + 1
           activeCamera.updateMatrixWorld()
           scene.updateMatrixWorld(true)
           raycaster.setFromCamera(puntero, activeCamera)
-          const choques = raycaster.intersectObjects(Array.from(piezas.values()), false)
-          return choques.length > 0 ? choques[0].object.name : ''
+          return caja
+        }
+
+        // ¿El toque fue sobre uno de los íconos de enlace? Los botones de UI
+        // anidados en el objetivo de imagen no reciben el clic en AR, así que
+        // el toque se resuelve aquí.
+        const enlaceBajoElPuntero = (e: PointerEvent, caja: DOMRect): string => {
+          const enlaces = (window as any).__fluxEnlaces || []
+          const mapa = (world as any).three.entityToObject
+          let mejor = ''
+          let menor = TOLERANCIA_TOQUE
+          for (const enlace of enlaces) {
+            const obj = mapa && mapa.get ? mapa.get(enlace.eid) : null
+            if (!obj || !esVisible(obj)) continue
+            if (raycaster.intersectObject(obj, true).length > 0) return enlace.url
+            const d = distanciaEnPantalla(obj, e, caja)
+            if (d < menor) { menor = d; mejor = enlace.url }
+          }
+          return mejor
+        }
+
+        const piezaBajoElPuntero = (e: PointerEvent, caja: DOMRect): string => {
+          buscarPiezas()
+          const visibles = Array.from(piezas.values()).filter(esVisible)
+          if (visibles.length === 0) return ''
+          const choques = raycaster.intersectObjects(visibles, false)
+          if (choques.length > 0) return choques[0].object.name
+          // Sin acierto exacto: la pieza más cercana al dedo, si está a mano
+          let mejor = ''
+          let menor = TOLERANCIA_TOQUE
+          for (const malla of visibles) {
+            const d = distanciaEnPantalla(malla, e, caja)
+            if (d < menor) { menor = d; mejor = malla.name }
+          }
+          return mejor
         }
 
         // ---------- Toques ----------
@@ -174,7 +239,10 @@ ecs.registerComponent({
           const movido = Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y)
           inicio = null
           if (movido > UMBRAL_CLIC) return
-          const tocada = piezaBajoElPuntero(e)
+          const caja = prepararRayo(e)
+          const url = enlaceBajoElPuntero(e, caja)
+          if (url) { abrirEnlace(url); return }
+          const tocada = piezaBajoElPuntero(e, caja)
           // Tocar la misma pieza o el vacío quita la selección
           seleccion = tocada === seleccion ? '' : tocada
           aplicar()
