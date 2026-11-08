@@ -1,10 +1,10 @@
 {
   "type": "PLANAR",
   "properties": {
-    "top": 137,
-    "left": 0,
-    "width": 591,
-    "height": 788,
+    "top": 290,
+    "left": 120,
+    "width": 360,
+    "height": 480,
     "isRotated": true,
     "originalWidth": 591,
     "originalHeight": 1063
