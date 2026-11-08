@@ -4,6 +4,7 @@ const onxrloaded = () => {
   XR8.XrController.configure({
     imageTargetData: [
       require('../image-targets/tarjeta-flux-frente.json'),
+      require('../image-targets/tarjeta-flux-reverso.json'),
     ],
   })
 }

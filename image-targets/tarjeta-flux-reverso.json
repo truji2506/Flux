@@ -1,0 +1,23 @@
+{
+  "type": "PLANAR",
+  "properties": {
+    "top": 137,
+    "left": 0,
+    "width": 591,
+    "height": 788,
+    "isRotated": true,
+    "originalWidth": 591,
+    "originalHeight": 1063
+  },
+  "imagePath": "image-targets/tarjeta-flux-reverso_luminance.png",
+  "metadata": null,
+  "name": "tarjeta-flux-reverso",
+  "resources": {
+    "originalImage": "tarjeta-flux-reverso_original.png",
+    "croppedImage": "tarjeta-flux-reverso_cropped.png",
+    "thumbnailImage": "tarjeta-flux-reverso_thumbnail.png",
+    "luminanceImage": "tarjeta-flux-reverso_luminance.png"
+  },
+  "created": 1794169246333,
+  "updated": 1794169246333
+}
