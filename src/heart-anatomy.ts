@@ -72,6 +72,44 @@ const abrirEnlace = (url: string) => {
 }
 ;(window as any).__fluxAbrirEnlace = abrirEnlace
 
+// Orden del recorrido con las flechas: el camino que sigue la sangre
+const RECORRIDO = [
+  'auricula_derecha', 'valvula_tricuspide', 'tabique_interventricular',
+  'valvula_pulmonar', 'arteria_pulmonar', 'auricula_izquierda',
+  'valvula_mitral', 'valvula_aortica', 'aorta',
+]
+
+const ESTILOS = `
+#flux-anatomia { position: fixed; left: 0; right: 0; bottom: 20px; z-index: 9999;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  font-family: system-ui, -apple-system, sans-serif; pointer-events: none; }
+#flux-anatomia * { box-sizing: border-box; }
+#flux-anatomia button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+#flux-anatomia .pista { padding: 6px 12px; border-radius: 999px; color: #eaf2ff;
+  background: rgba(10,18,28,0.78); border: 1px solid rgba(255,255,255,0.18);
+  font-size: 12px; font-weight: 500; }
+#flux-anatomia .abrir { pointer-events: auto; min-height: 44px; padding: 0 22px;
+  border-radius: 999px; border: 1px solid #64ffda; background: rgba(10,18,28,0.88);
+  color: #64ffda; font-size: 15px; font-weight: 600; cursor: pointer; }
+#flux-anatomia .ficha { pointer-events: auto; width: min(92vw, 380px); padding: 12px;
+  border-radius: 16px; background: rgba(10,18,28,0.9); border: 1px solid #64ffda;
+  color: #eaf2ff; }
+#flux-anatomia .fila { display: flex; align-items: center; gap: 8px; }
+#flux-anatomia .flecha, #flux-anatomia .cerrar { flex: none; width: 44px; height: 44px;
+  border-radius: 12px; border: 1px solid rgba(100,255,218,0.45); background: transparent;
+  color: #64ffda; font-size: 20px; line-height: 1; cursor: pointer; }
+#flux-anatomia .cerrar { width: 32px; height: 32px; font-size: 16px; border: none; }
+#flux-anatomia .titulo { flex: 1; min-width: 0; text-align: center; }
+#flux-anatomia .nombre { font-size: 16px; font-weight: 700; color: #64ffda; }
+#flux-anatomia .contador { font-size: 11px; color: rgba(234,242,255,0.6); margin-top: 2px; }
+#flux-anatomia .descripcion { margin-top: 10px; font-size: 13px; line-height: 1.45;
+  color: rgba(234,242,255,0.88); }
+#flux-anatomia .cabecera { display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(234,242,255,0.6); }
+#flux-anatomia [hidden] { display: none !important; }
+`
+
 ecs.registerComponent({
   name: 'heart-anatomy',
   stateMachine: ({world}) => {
@@ -81,82 +119,57 @@ ecs.registerComponent({
         const {renderer, scene, activeCamera} = world.three as any
         const lienzo: HTMLElement = renderer.domElement
 
-        // Piezas encontradas por nombre (se buscan al primer toque, cuando el
-        // modelo ya cargó) y su estado original.
+        // Piezas encontradas por nombre (se buscan cuando el modelo ya cargó)
         const piezas = new Map<string, any>()
         const emisivoBase = new Map<string, number>()
         let seleccion = ''
+        let modoAnatomia = false
+        let tarjetaVisible = false
         let inicio: {x: number, y: number} | null = null
 
-        // ---------- Panel de información (HTML sobre la escena) ----------
-        const panel = document.createElement('div')
-        panel.style.cssText = [
-          'position:fixed', 'left:50%', 'bottom:24px', 'transform:translateX(-50%)',
-          'width:min(86vw,340px)', 'padding:12px 14px', 'border-radius:14px',
-          'background:rgba(10,18,28,0.86)', 'border:1px solid #64ffda',
-          'color:#eaf2ff', 'font:400 13px/1.45 system-ui,sans-serif',
-          'z-index:9999', 'display:none', 'pointer-events:none',
-        ].join(';')
-        const titulo = document.createElement('div')
-        titulo.style.cssText = 'font:600 15px/1.2 system-ui,sans-serif;margin-bottom:6px;color:#64ffda'
-        const texto = document.createElement('div')
-        texto.style.cssText = 'color:rgba(234,242,255,0.85)'
-        panel.appendChild(titulo)
-        panel.appendChild(texto)
-        document.body.appendChild(panel)
+        // ---------- Interfaz (HTML sobre la escena) ----------
+        const estilo = document.createElement('style')
+        estilo.textContent = ESTILOS
+        document.head.appendChild(estilo)
 
-        const pista = document.createElement('div')
-        pista.textContent = 'Toca una pieza del corazón'
-        pista.style.cssText = [
-          'position:fixed', 'left:50%', 'bottom:24px', 'transform:translateX(-50%)',
-          'padding:6px 12px', 'border-radius:999px', 'background:rgba(10,18,28,0.78)',
-          'border:1px solid rgba(255,255,255,0.18)', 'color:#eaf2ff',
-          'font:500 12px/1.2 system-ui,sans-serif', 'z-index:9999', 'pointer-events:none',
-        ].join(';')
-        document.body.appendChild(pista)
-
-        // ---------- Estado de la detección de la tarjeta (diagnóstico) ----------
-        let estado = 'Apunta a la tarjeta Flux'
-        const textoPista = () => {
-          pista.textContent = estado
-          pista.style.whiteSpace = 'normal'
-          pista.style.maxWidth = '86vw'
-          pista.style.textAlign = 'center'
-        }
-        const ev = (ecs as any).events
-        const gid = (world as any).events.globalId
-        const escuchas: Array<[string, (e: any) => void]> = []
-        const oir = (nombre: string, fn: (e: any) => void) => {
-          if (!nombre) return
-          ;(world as any).events.addListener(gid, nombre, fn)
-          escuchas.push([nombre, fn])
-        }
-        oir(ev?.REALITY_IMAGE_LOADING, (e: any) => {
-          estado = 'Apunta a la tarjeta Flux'
-          textoPista()
-        })
-        oir(ev?.REALITY_IMAGE_SCANNING, () => { estado = 'Apunta a la tarjeta'; textoPista() })
-        oir(ev?.REALITY_IMAGE_FOUND, (e: any) => { estado = 'Toca una pieza del corazón'; textoPista() })
-        oir(ev?.REALITY_IMAGE_LOST, () => { estado = 'Apunta a la tarjeta Flux'; textoPista() })
-        textoPista()
+        const raiz = document.createElement('div')
+        raiz.id = 'flux-anatomia'
+        raiz.innerHTML = `
+          <div class="pista">Apunta a la tarjeta Flux</div>
+          <button class="abrir" type="button" hidden>Anatomía</button>
+          <div class="ficha" hidden>
+            <div class="cabecera"><span>Anatomía del corazón</span>
+              <button class="cerrar" type="button" aria-label="Cerrar anatomía">✕</button></div>
+            <div class="fila">
+              <button class="flecha anterior" type="button" aria-label="Pieza anterior">◀</button>
+              <div class="titulo"><div class="nombre"></div><div class="contador"></div></div>
+              <button class="flecha siguiente" type="button" aria-label="Pieza siguiente">▶</button>
+            </div>
+            <div class="descripcion"></div>
+          </div>`
+        document.body.appendChild(raiz)
+        const $ = (sel: string) => raiz.querySelector(sel) as HTMLElement
+        const pista = $('.pista')
+        const botonAbrir = $('.abrir')
+        const ficha = $('.ficha')
 
         // ---------- Piezas ----------
         const buscarPiezas = () => {
           if (piezas.size > 0) return
           scene.traverse((obj: any) => {
             if (!obj.isMesh || !PARTES[obj.name]) return
-            // Cada pieza con su propio material: si se comparte, resaltar una
+            // Material propio por pieza: si se comparte, resaltar una
             // encendería varias a la vez.
             obj.material = obj.material.clone()
-            // Quieto, como en el visor de anatomía: el toque se calcula sobre la
-            // forma en reposo y con el latido no coincidía con lo que se ve.
+            // Quieto, como en el visor de anatomía de fluxapp
             if (obj.morphTargetInfluences) obj.morphTargetInfluences.fill(0)
             piezas.set(obj.name, obj)
             emisivoBase.set(obj.name, obj.material.emissive ? obj.material.emissive.getHex() : 0)
           })
         }
 
-        const aplicar = () => {
+        const pintar = () => {
+          buscarPiezas()
           const hay = seleccion !== ''
           piezas.forEach((malla, nombre) => {
             const m = malla.material
@@ -168,18 +181,56 @@ ecs.registerComponent({
             m.depthWrite = !atenuada
             m.needsUpdate = true
           })
-          if (hay) {
-            titulo.textContent = PARTES[seleccion].nombre
-            texto.textContent = PARTES[seleccion].descripcion
-            panel.style.display = 'block'
-            pista.style.display = 'none'
-          } else {
-            panel.style.display = 'none'
-            pista.style.display = 'block'
+        }
+
+        const actualizarInterfaz = () => {
+          const enFicha = modoAnatomia && seleccion !== ''
+          ficha.hidden = !enFicha
+          botonAbrir.hidden = enFicha || !tarjetaVisible
+          pista.hidden = enFicha
+          pista.textContent = tarjetaVisible
+            ? 'Toca "Anatomía" o una pieza del corazón'
+            : 'Apunta a la tarjeta Flux'
+          if (enFicha) {
+            const i = RECORRIDO.indexOf(seleccion)
+            $('.nombre').textContent = PARTES[seleccion].nombre
+            $('.contador').textContent = `${i + 1} / ${RECORRIDO.length}`
+            $('.descripcion').textContent = PARTES[seleccion].descripcion
           }
         }
 
-        // Distancia en pantalla (px) entre el toque y el centro de un objeto
+        const seleccionar = (nombre: string) => {
+          seleccion = nombre
+          modoAnatomia = nombre !== ''
+          pintar()
+          actualizarInterfaz()
+        }
+
+        const mover = (paso: number) => {
+          const i = RECORRIDO.indexOf(seleccion)
+          const n = RECORRIDO.length
+          seleccionar(RECORRIDO[((i < 0 ? 0 : i + paso) % n + n) % n])
+        }
+
+        botonAbrir.addEventListener('click', () => seleccionar(RECORRIDO[0]))
+        $('.anterior').addEventListener('click', () => mover(-1))
+        $('.siguiente').addEventListener('click', () => mover(1))
+        $('.cerrar').addEventListener('click', () => seleccionar(''))
+
+        // ---------- Detección de la tarjeta ----------
+        const ev = (ecs as any).events
+        const gid = (world as any).events.globalId
+        const escuchas: Array<[string, (e: any) => void]> = []
+        const oir = (nombre: string, fn: (e: any) => void) => {
+          if (!nombre) return
+          ;(world as any).events.addListener(gid, nombre, fn)
+          escuchas.push([nombre, fn])
+        }
+        oir(ev?.REALITY_IMAGE_FOUND, () => { tarjetaVisible = true; actualizarInterfaz() })
+        oir(ev?.REALITY_IMAGE_LOST, () => { tarjetaVisible = false; actualizarInterfaz() })
+        actualizarInterfaz()
+
+        // ---------- Toque directo sobre piezas e íconos ----------
         const distanciaEnPantalla = (obj: any, e: PointerEvent, caja: DOMRect) => {
           _caja.setFromObject(obj).getCenter(_centro).project(activeCamera)
           if (_centro.z > 1) return Infinity
@@ -198,9 +249,8 @@ ecs.registerComponent({
           return caja
         }
 
-        // ¿El toque fue sobre uno de los íconos de enlace? Los botones de UI
-        // anidados en el objetivo de imagen no reciben el clic en AR, así que
-        // el toque se resuelve aquí.
+        // Los botones de UI anidados en el objetivo de imagen no reciben el clic
+        // en AR, así que el toque sobre los íconos se resuelve aquí.
         const enlaceBajoElPuntero = (e: PointerEvent, caja: DOMRect): string => {
           const enlaces = (window as any).__fluxEnlaces || []
           const mapa = (world as any).three.entityToObject
@@ -222,7 +272,6 @@ ecs.registerComponent({
           if (visibles.length === 0) return ''
           const choques = raycaster.intersectObjects(visibles, false)
           if (choques.length > 0) return choques[0].object.name
-          // Sin acierto exacto: la pieza más cercana al dedo, si está a mano
           let mejor = ''
           let menor = TOLERANCIA_TOQUE
           for (const malla of visibles) {
@@ -232,30 +281,31 @@ ecs.registerComponent({
           return mejor
         }
 
-        // ---------- Toques ----------
         const alBajar = (e: PointerEvent) => { inicio = {x: e.clientX, y: e.clientY} }
         const alSubir = (e: PointerEvent) => {
           if (!inicio) return
           const movido = Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y)
           inicio = null
           if (movido > UMBRAL_CLIC) return
+          // Los toques sobre la ficha y sus botones los manejan ellos
+          if (raiz.contains(e.target as Node)) return
           const caja = prepararRayo(e)
           const url = enlaceBajoElPuntero(e, caja)
           if (url) { abrirEnlace(url); return }
           const tocada = piezaBajoElPuntero(e, caja)
-          // Tocar la misma pieza o el vacío quita la selección
-          seleccion = tocada === seleccion ? '' : tocada
-          aplicar()
+          if (tocada) seleccionar(tocada === seleccion ? '' : tocada)
         }
-        lienzo.addEventListener('pointerdown', alBajar)
-        lienzo.addEventListener('pointerup', alSubir)
+        // En toda la ventana y en captura: si 8th Wall pone una capa encima del
+        // lienzo, el toque igual llega.
+        window.addEventListener('pointerdown', alBajar, true)
+        window.addEventListener('pointerup', alSubir, true)
 
         // Limpieza al salir del estado
         ;(world as any).__heartAnatomyCleanup = () => {
-          lienzo.removeEventListener('pointerdown', alBajar)
-          lienzo.removeEventListener('pointerup', alSubir)
-          panel.remove()
-          pista.remove()
+          window.removeEventListener('pointerdown', alBajar, true)
+          window.removeEventListener('pointerup', alSubir, true)
+          raiz.remove()
+          estilo.remove()
           escuchas.forEach(([n, f]) => (world as any).events.removeListener(gid, n, f))
         }
       })
