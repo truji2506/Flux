@@ -237,6 +237,12 @@ export const montarFlujo = (world: any, eid: any, cfg: ConfigFlujo) => {
     // mismo espacio que las guías (sus fotogramas son relativos a ese padre)
     const buscar = () => {
       if (cancelado) return
+      try { montar() } catch (err) {
+        console.error('Flujo de glóbulos no se pudo montar:', err)
+        apagar()
+      }
+    }
+    const montar = () => {
       const raiz = raizModelo()
       const mallas = raiz ? guias.map((g) => raiz.getObjectByName(g.nombre)) : []
       if (!raiz || mallas.some((m: any) => !m)) { window.setTimeout(buscar, 400); return }
@@ -279,7 +285,14 @@ export const montarFlujo = (world: any, eid: any, cfg: ConfigFlujo) => {
       let antes = performance.now()
       const bucle = (ahora: number) => {
         if (cancelado) return
-        animar(ahora, antes)
+        try {
+          animar(ahora, antes)
+        } catch (err) {
+          // Si algo falla, se apaga la corriente sin tumbar el resto de la escena
+          console.error('Flujo de glóbulos detenido:', err)
+          apagar()
+          return
+        }
         antes = ahora
         cuadro = requestAnimationFrame(bucle)
       }
@@ -287,15 +300,20 @@ export const montarFlujo = (world: any, eid: any, cfg: ConfigFlujo) => {
     }
     buscar()
   }
-  iniciar()
-
-  return () => {
+  function apagar() {
     cancelado = true
     cancelAnimationFrame(cuadro)
     for (const c of corrientes) {
-      if (c.malla.parent) c.malla.parent.remove(c.malla)
-      c.malla.dispose()
+      try {
+        if (c.malla.parent) c.malla.parent.remove(c.malla)
+        c.malla.dispose()
+      } catch (e) { /* ya no está en la escena */ }
     }
+    corrientes.length = 0
     for (const m of materiales) m.dispose()
+    materiales.length = 0
   }
+
+  iniciar().catch((err) => { console.error('Flujo de glóbulos:', err); apagar() })
+  return apagar
 }
