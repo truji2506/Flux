@@ -1,5 +1,6 @@
 import * as ecs from '@8thwall/ecs'
 import {montarVisor, Pieza} from './anatomy-viewer'
+import {montarFlujo} from './blood-flow'
 
 // Piezas del corazón: la llave es el nombre de la malla en el .glb.
 // Los textos son los mismos del catálogo anatómico de fluxapp.
@@ -53,6 +54,7 @@ ecs.registerComponent({
   name: 'heart-anatomy',
   stateMachine: ({world, eid}) => {
     let limpiar: (() => void) | null = null
+    let limpiarFlujo: (() => void) | null = null
     ecs.defineState('default')
       .initial()
       .onEnter(() => {
@@ -60,14 +62,28 @@ ecs.registerComponent({
           objetivo: 'tarjeta-flux-frente',
           titulo: 'Anatomía del corazón',
           textoBoton: 'Anatomía',
-          pista: 'Toca "Anatomía" o una pieza del corazón',
+          pista: 'Toca "Anatomía" para explorar el corazón',
           partes: PARTES,
           recorrido: RECORRIDO,
           principal: true,
-          congelar: true,
           enlaces: true,
+          // Esferas guía del flujo: no se ven, solo marcan el camino de la sangre
+          ocultar: /^flujo_globulo/,
+        })
+        limpiarFlujo = montarFlujo(world, eid, {
+          objetivo: 'tarjeta-flux-frente',
+          urlModelo: 'assets/corazon.glb',
+          urlGlobulo: 'assets/globulo.glb',
+          patronGuia: /^flujo_globulo/,
+          // La animación guía cruza el corazón en ~0.6 s: muy rápido para seguirla
+          duracion: 5,
+          // Rojo: sangre oxigenada (lado izquierdo); azul: venosa (lado derecho)
+          color: (nombre) => (/azul/i.test(nombre) ? 'azul' : 'rojo'),
         })
       })
-      .onExit(() => { if (limpiar) limpiar() })
+      .onExit(() => {
+        if (limpiar) limpiar()
+        if (limpiarFlujo) limpiarFlujo()
+      })
   },
 })

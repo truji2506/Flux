@@ -1,5 +1,6 @@
 import * as ecs from '@8thwall/ecs'
 import {montarVisor, Pieza} from './anatomy-viewer'
+import {montarFlujo} from './blood-flow'
 
 // Capas de la arteria proximal (elástica), de afuera hacia adentro. La llave es
 // el nombre de la malla en Osorio_ArteriaProx_Animacion.glb.
@@ -28,6 +29,7 @@ ecs.registerComponent({
   name: 'artery-anatomy',
   stateMachine: ({world, eid}) => {
     let limpiar: (() => void) | null = null
+    let limpiarFlujo: (() => void) | null = null
     ecs.defineState('default')
       .initial()
       .onEnter(() => {
@@ -35,13 +37,25 @@ ecs.registerComponent({
           objetivo: 'tarjeta-flux-reverso',
           titulo: 'Capas de la arteria',
           textoBoton: 'Capas de la arteria',
-          pista: 'Toca "Capas de la arteria" o una capa',
+          pista: 'Toca "Capas de la arteria" para explorarla',
           partes: CAPAS,
           recorrido: RECORRIDO,
-          // En fluxapp estos glóbulos solo guían el flujo: no se muestran
+          // Glóbulos guía del modelo: no se ven, solo marcan el camino
           ocultar: /^globulo/,
         })
+        limpiarFlujo = montarFlujo(world, eid, {
+          objetivo: 'tarjeta-flux-reverso',
+          urlModelo: 'assets/arteria-proximal.glb',
+          urlGlobulo: 'assets/globulo.glb',
+          patronGuia: /^globulo_/,
+          duracion: 4,
+          densidad: 0.5,   // cinco corrientes en un tubo corto: más espaciadas
+          color: () => 'rojo',   // arteria: sangre oxigenada
+        })
       })
-      .onExit(() => { if (limpiar) limpiar() })
+      .onExit(() => {
+        if (limpiar) limpiar()
+        if (limpiarFlujo) limpiarFlujo()
+      })
   },
 })

@@ -2,6 +2,7 @@
 // arteria (reverso). Cada modelo monta su propia ficha con botón y flechas, que
 // solo aparece mientras su lado de la tarjeta está a la vista.
 import * as ecs from '@8thwall/ecs'
+import {marcarSeleccion} from './blood-flow'
 
 const {THREE} = window as any
 
@@ -17,7 +18,7 @@ export type ConfigVisor = {
   principal?: boolean              // muestra "Apunta a la tarjeta" si no se ve ningún lado
   congelar?: boolean               // deja el modelo quieto (sin morph targets)
   ocultar?: RegExp                 // mallas auxiliares que no se deben ver
-  enlaces?: boolean                // resuelve también el toque sobre los íconos de redes
+  enlaces?: boolean                // resuelve el toque sobre los íconos de Flux e Instagram
 }
 
 const COLOR_RESALTE = 0x2a6ea8
@@ -179,6 +180,8 @@ export const montarVisor = (world: any, eid: any, cfg: ConfigVisor) => {
 
   const seleccionar = (nombre: string) => {
     seleccion = nombre
+    // Con la ficha abierta, los glóbulos se atenúan para no tapar la pieza
+    marcarSeleccion(cfg.objetivo, nombre !== '')
     pintar()
     actualizarInterfaz()
   }
@@ -213,7 +216,7 @@ export const montarVisor = (world: any, eid: any, cfg: ConfigVisor) => {
   window.addEventListener(EVENTO_OBJETIVOS, actualizarInterfaz)
   actualizarInterfaz()
 
-  // ---------- Toque directo sobre piezas (e íconos) ----------
+  // ---------- Toque sobre los íconos de Flux e Instagram ----------
   const distanciaEnPantalla = (obj: any, e: PointerEvent, caja: DOMRect) => {
     _caja.setFromObject(obj).getCenter(_centro).project(activeCamera)
     if (_centro.z > 1) return Infinity
@@ -249,21 +252,6 @@ export const montarVisor = (world: any, eid: any, cfg: ConfigVisor) => {
     return mejor
   }
 
-  const piezaBajoElPuntero = (e: PointerEvent, caja: DOMRect): string => {
-    prepararModelo()
-    const visibles = Array.from(piezas.values()).filter(esVisible)
-    if (visibles.length === 0) return ''
-    const choques = raycaster.intersectObjects(visibles, false)
-    if (choques.length > 0) return choques[0].object.name
-    let mejor = ''
-    let menor = TOLERANCIA_TOQUE
-    for (const malla of visibles) {
-      const d = distanciaEnPantalla(malla, e, caja)
-      if (d < menor) { menor = d; mejor = malla.name }
-    }
-    return mejor
-  }
-
   const alBajar = (e: PointerEvent) => { inicio = {x: e.clientX, y: e.clientY} }
   const alSubir = (e: PointerEvent) => {
     if (!inicio) return
@@ -272,18 +260,17 @@ export const montarVisor = (world: any, eid: any, cfg: ConfigVisor) => {
     if (movido > UMBRAL_CLIC) return
     // Toques sobre cualquier ficha o botón: los manejan sus propios botones
     if ((e.target as HTMLElement)?.closest?.('.flux-anatomia button, .flux-anatomia .ficha')) return
-    const caja = prepararRayo(e)
-    if (cfg.enlaces) {
-      const url = enlaceBajoElPuntero(e, caja)
-      if (url) { abrirEnlace(url); return }
-    }
-    const tocada = piezaBajoElPuntero(e, caja)
-    if (tocada) seleccionar(tocada === seleccion ? '' : tocada)
+    // Las piezas se recorren solo con el botón y las flechas; el toque en la
+    // escena queda únicamente para los íconos de Flux e Instagram.
+    const url = enlaceBajoElPuntero(e, prepararRayo(e))
+    if (url) abrirEnlace(url)
   }
   // En toda la ventana y en captura: si 8th Wall pone una capa encima del
   // lienzo, el toque igual llega.
-  window.addEventListener('pointerdown', alBajar, true)
-  window.addEventListener('pointerup', alSubir, true)
+  if (cfg.enlaces) {
+    window.addEventListener('pointerdown', alBajar, true)
+    window.addEventListener('pointerup', alSubir, true)
+  }
 
   return () => {
     window.clearInterval(espera)
